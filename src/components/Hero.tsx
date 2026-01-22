@@ -79,7 +79,7 @@ const Hero = () => {
           className="text-sm text-muted-foreground mt-6 animate-slide-up"
           style={{ animationDelay: "0.6s" }}
         >
-          Version: 1.0.0 Beta
+          v0.0.0.1 Beta Build
         </p>
       </div>
     </section>

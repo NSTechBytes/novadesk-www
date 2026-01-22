@@ -21,10 +21,10 @@ const ContactModal = ({ open, onOpenChange }: ContactModalProps) => {
         <div className="flex items-center gap-3 p-4 rounded-lg bg-secondary/50">
           <Mail className="w-5 h-5 text-primary" />
           <a 
-            href="mailto:hello@novadesk.app" 
+            href="mailto:officialnovadesk@gmail.com" 
             className="text-foreground hover:text-primary transition-colors"
           >
-            hello@novadesk.app
+            officialnovadesk@gmail.com
           </a>
         </div>
       </DialogContent>

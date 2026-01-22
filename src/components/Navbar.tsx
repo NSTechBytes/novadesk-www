@@ -8,7 +8,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", href: "#", active: true },
-    { name: "Docs", href: "#docs" },
+    { name: "Docs", href: "https://novadesk-docs.pages.dev/" },
     { name: "Contact", href: "#", isContact: true },
   ];
 

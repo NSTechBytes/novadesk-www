@@ -5,7 +5,7 @@ const Footer = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-foreground font-bold tracking-tight">Novadesk</p>
           <p className="text-muted-foreground text-sm">
-            © 2024 Novadesk. All rights reserved.
+            © 2026 Official Novadesk. All rights reserved.
           </p>
         </div>
       </div>
