@@ -69,8 +69,8 @@ const Hero = () => {
           <Button variant="hero" size="lg">
             Download
           </Button>
-          <Button variant="heroOutline" size="lg">
-            Visit Docs
+          <Button variant="heroOutline" size="lg" asChild>
+            <a href="https://novadesk-docs.pages.dev/">Visit Docs</a>
           </Button>
         </div>
 
@@ -79,7 +79,7 @@ const Hero = () => {
           className="text-sm text-muted-foreground mt-6 animate-slide-up"
           style={{ animationDelay: "0.6s" }}
         >
-          v0.0.0.1 Beta Build
+          v0.1.0.0 Beta Build
         </p>
       </div>
     </section>

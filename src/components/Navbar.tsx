@@ -26,7 +26,7 @@ const Navbar = () => {
         <nav className="max-w-5xl mx-auto glass rounded-2xl px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <a href="#" className="text-xl font-bold text-foreground tracking-tight">
+            <a href="https://novadesk.pages.dev/" className="text-xl font-bold text-foreground tracking-tight">
               Novadesk
             </a>
 
@@ -51,7 +51,7 @@ const Navbar = () => {
             {/* GitHub Icon */}
             <div className="hidden md:flex items-center gap-3">
               <a 
-                href="https://github.com" 
+                href="https://github.com/Official-Novadesk/novadesk" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg hover:bg-secondary transition-colors"
