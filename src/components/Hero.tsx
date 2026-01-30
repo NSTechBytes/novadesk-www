@@ -1,8 +1,34 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Clock, Calendar, Cloud, Music, Battery, Wifi, Sun, Gauge } from "lucide-react";
 import heroBackground from "@/assets/hero-background.webp";
 
 const Hero = () => {
+  const [latestVersion, setLatestVersion] = useState("v0.1.0.0 Beta Build");
+  const [downloadUrl, setDownloadUrl] = useState("https://github.com/Official-Novadesk/novadesk/releases/latest");
+
+  useEffect(() => {
+    fetch("https://api.github.com/repos/Official-Novadesk/novadesk/releases/latest")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.tag_name) {
+          setLatestVersion(`${data.tag_name} ${data.name.includes('Beta') ? 'Beta' : 'Stable'} Build`);
+        }
+        if (data.assets && data.assets.length > 0) {
+          // Find the setup.exe or first asset
+          const setupAsset = data.assets.find((asset: any) => asset.name.endsWith(".exe"));
+          if (setupAsset) {
+            setDownloadUrl(setupAsset.browser_download_url);
+          } else {
+            setDownloadUrl(data.html_url);
+          }
+        } else {
+          setDownloadUrl(data.html_url);
+        }
+      })
+      .catch((err) => console.error("Error fetching latest release:", err));
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -66,8 +92,8 @@ const Hero = () => {
           className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up"
           style={{ animationDelay: "0.5s" }}
         >
-          <Button variant="hero" size="lg">
-            Download
+          <Button variant="hero" size="lg" asChild>
+            <a href={downloadUrl}>Download</a>
           </Button>
           <Button variant="heroOutline" size="lg" asChild>
             <a href="https://novadesk-docs.pages.dev/">Visit Docs</a>
@@ -79,7 +105,7 @@ const Hero = () => {
           className="text-sm text-muted-foreground mt-6 animate-slide-up"
           style={{ animationDelay: "0.6s" }}
         >
-          v0.1.0.0 Beta Build
+          {latestVersion}
         </p>
       </div>
     </section>
