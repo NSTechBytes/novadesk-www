@@ -69,7 +69,7 @@ onMounted(async () => {
         <div class="links" :class="{ open: showMenu }">
           <a href="/">Home</a>
           <a href="https://novadesk-docs.pages.dev/" target="_blank" rel="noreferrer">Docs</a>
-          <a href="https://novadesk-docs.pages.dev/changelog/" target="_blank" rel="noreferrer">Changelog</a>
+          <a href="https://novadesk-docs.pages.dev/changelogs/CHANGELOG.html" target="_blank" rel="noreferrer">Changelog</a>
           <a href="#" @click.prevent="openContact">Contact</a>
         </div>
       </div>
