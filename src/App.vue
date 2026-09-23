@@ -115,7 +115,7 @@ onMounted(async () => {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: linear-gradient(55deg, #050E1B 0%, #071B30 55%, #0B1329 100%);
+  background: #071B30;
   display: flex;
   flex-direction: column;
   align-items: center;
