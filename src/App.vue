@@ -115,7 +115,7 @@ onMounted(async () => {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: #1B1B1F;
+  background: linear-gradient(55deg, #050E1B 0%, #071B30 55%, #0B1329 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -135,8 +135,8 @@ onMounted(async () => {
   position: absolute;
   width: 72px;
   height: 72px;
-  opacity: 0.08;
-  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35));
+  opacity: 0.2;
+  filter: brightness(0) saturate(100%) invert(85%) sepia(55%) saturate(600%) hue-rotate(158deg) brightness(1.1) drop-shadow(0 12px 24px rgba(115, 240, 255, 0.35));
 }
 
 .float {
@@ -274,7 +274,7 @@ onMounted(async () => {
 }
 
 .grad {
-  background: linear-gradient(120deg, #51BCFE, #BD34FE);
+  background: linear-gradient(45deg, #73F0FF 0%, #29D1FA 55%, #057AF0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
