@@ -10,34 +10,61 @@ const downloadUrl = ref('https://github.com/Official-Novadesk/novadesk/releases/
 interface WidgetItem {
   name: string
   image: string
+  repoUrl: string
 }
 
 const widgets: WidgetItem[] = [
   {
     name: 'CleanTime',
-    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264582/zfjzk4hhfnkjjrpvm8xd.png'
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264582/zfjzk4hhfnkjjrpvm8xd.png',
+    repoUrl: 'https://github.com/NSTechBytes/CleanTime'
   },
   {
     name: 'AeroWeather',
-    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264581/p9kznwu99er2eypdqco9.png'
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264581/p9kznwu99er2eypdqco9.png',
+    repoUrl: 'https://github.com/NSTechBytes/AeroWeather'
   },
   {
     name: 'FineTime',
-    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264581/smv6ebiy6hhcjfzrgpgh.png'
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264581/smv6ebiy6hhcjfzrgpgh.png',
+    repoUrl: 'https://github.com/NSTechBytes/FineTime'
   },
   {
     name: 'AClock',
-    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264581/voovyxrymb8d0p3n2bhb.png'
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264581/voovyxrymb8d0p3n2bhb.png',
+    repoUrl: 'https://github.com/NSTechBytes/AClock'
   },
   {
     name: 'SmartPlayer',
-    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264579/hz7uexfdpqkbjnqpteyb.jpg'
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264579/hz7uexfdpqkbjnqpteyb.jpg',
+    repoUrl: 'https://github.com/NSTechBytes/SmartPlayer'
   }
 ]
 
 const currentSlide = ref(0)
 const currentWidget = computed<WidgetItem>(() => widgets[currentSlide.value] ?? widgets[0] as WidgetItem)
 let slideTimer: ReturnType<typeof setInterval> | null = null
+
+const showWidgetModal = ref(false)
+const activeWidget = ref<WidgetItem | null>(null)
+
+const openWidgetModal = (w?: WidgetItem) => {
+  stopAutoplay()
+  activeWidget.value = w || currentWidget.value
+  showWidgetModal.value = true
+}
+
+const closeWidgetModal = () => {
+  showWidgetModal.value = false
+  startAutoplay()
+}
+
+const proceedToRelease = () => {
+  if (activeWidget.value?.repoUrl) {
+    window.open(`${activeWidget.value.repoUrl}/releases/latest`, '_blank', 'noopener,noreferrer')
+  }
+  closeWidgetModal()
+}
 
 const nextSlide = () => {
   currentSlide.value = (currentSlide.value + 1) % widgets.length
@@ -172,19 +199,35 @@ onUnmounted(() => {
       >
         <div class="slideshow">
           <transition name="slide-fade" mode="out-in">
-            <div :key="currentSlide" class="slide">
+            <div
+              :key="currentSlide"
+              class="slide clickable"
+              role="button"
+              tabindex="0"
+              :aria-label="`Get ${currentWidget.name} Widget`"
+              @click="openWidgetModal(currentWidget)"
+              @keydown.enter="openWidgetModal(currentWidget)"
+            >
               <img
                 :src="currentWidget.image"
                 :alt="currentWidget.name"
                 class="slide-img"
               />
+              <div class="slide-click-hint">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Click to get widget</span>
+              </div>
             </div>
           </transition>
 
           <button
             class="slide-nav prev"
             type="button"
-            @click="prevSlide"
+            @click.stop="prevSlide"
             aria-label="Previous slide"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -194,7 +237,7 @@ onUnmounted(() => {
           <button
             class="slide-nav next"
             type="button"
-            @click="nextSlide"
+            @click.stop="nextSlide"
             aria-label="Next slide"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -202,7 +245,13 @@ onUnmounted(() => {
             </svg>
           </button>
 
-          <div class="slide-badge">
+          <div
+            class="slide-badge"
+            role="button"
+            tabindex="0"
+            @click.stop="openWidgetModal(currentWidget)"
+            :aria-label="`Get ${currentWidget.name} Widget`"
+          >
             <span>{{ currentWidget.name }} Widget</span>
           </div>
 
@@ -259,6 +308,53 @@ onUnmounted(() => {
       <div class="email-chip">
         <span>Email:</span>
         <a href="mailto:officialnovadesk@gmail.com">officialnovadesk@gmail.com</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Widget Requirements & Release Modal -->
+  <div v-if="showWidgetModal" class="modal-backdrop" @click.self="closeWidgetModal">
+    <div class="modal widget-modal">
+      <button class="icon-close" type="button" @click="closeWidgetModal" aria-label="Close">
+        <img src="./assets/icons/close.png" alt="Close" />
+      </button>
+
+      <div class="widget-modal-heading">
+        <div class="widget-modal-icon">
+          <img src="./assets/logo.png" alt="Novadesk" />
+        </div>
+        <h2>{{ activeWidget?.name }} Widget</h2>
+      </div>
+
+      <div class="widget-modal-alert">
+        <div class="alert-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#73F0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <p class="alert-text">
+          To use this widget, make sure you have installed <strong>Novadesk</strong> in your system.
+        </p>
+      </div>
+
+      <p class="widget-modal-desc">
+        Click below to proceed to the latest release on GitHub and download the widget package.
+      </p>
+
+      <div class="widget-modal-actions">
+        <button class="btn-proceed" type="button" @click="proceedToRelease">
+          <span>Okay, I do</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+
+        <a class="btn-novadesk-link" :href="downloadUrl" download>
+          Don't have Novadesk? Download it here
+        </a>
       </div>
     </div>
   </div>
@@ -604,6 +700,132 @@ onUnmounted(() => {
   height: 26px;
 }
 
+/* Widget Modal */
+.widget-modal {
+  max-width: 440px;
+  width: 90%;
+  background: #141c2e;
+  border: 1px solid rgba(81, 188, 254, 0.38);
+  border-radius: 20px;
+  padding: 2.2rem 2rem 2rem;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.65), 0 0 35px rgba(56, 189, 248, 0.16);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.widget-modal-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.widget-modal-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.widget-modal-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.widget-modal-heading h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.widget-modal-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(81, 188, 254, 0.28);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  text-align: left;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.widget-modal-alert .alert-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.widget-modal-alert .alert-text {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.widget-modal-alert .alert-text strong {
+  color: #73F0FF;
+  font-weight: 600;
+}
+
+.widget-modal-desc {
+  margin: 0.1rem 0;
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.widget-modal-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  margin-top: 0.4rem;
+}
+
+.btn-proceed {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  background: linear-gradient(90deg, #00C6FF 0%, #1E90FF 100%);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.85rem 1.8rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 198, 255, 0.38);
+  transition: all 0.2s ease;
+}
+
+.btn-proceed:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 198, 255, 0.55);
+  filter: brightness(1.06);
+}
+
+.btn-novadesk-link {
+  color: #73F0FF;
+  font-size: 0.86rem;
+  text-decoration: none;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.btn-novadesk-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 .icon-close {
   position: absolute;
   top: 10px;
@@ -698,11 +920,49 @@ onUnmounted(() => {
   height: 100%;
 }
 
+.slide.clickable {
+  cursor: pointer;
+}
+
 .slide-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.45s ease;
+}
+
+.slide.clickable:hover .slide-img {
+  transform: scale(1.03);
+}
+
+.slide-click-hint {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(11, 20, 38, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(81, 188, 254, 0.35);
+  border-radius: 999px;
+  padding: 0.38rem 0.85rem;
+  color: #73F0FF;
+  font-size: 0.82rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.25s ease;
+  pointer-events: none;
+  z-index: 4;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.slide.clickable:hover .slide-click-hint {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .slide-nav {
@@ -755,9 +1015,16 @@ onUnmounted(() => {
   font-size: 0.88rem;
   font-weight: 500;
   letter-spacing: 0.02em;
-  pointer-events: none;
+  cursor: pointer;
   z-index: 4;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s ease;
+}
+
+.slide-badge:hover {
+  background: rgba(56, 189, 248, 0.28);
+  border-color: rgba(56, 189, 248, 0.6);
+  transform: translateY(-1px);
 }
 
 .slide-dots {
@@ -996,6 +1263,26 @@ onUnmounted(() => {
     width: 100%;
     max-width: 280px;
     align-self: center;
+  }
+
+  /* Responsive Widget Modal */
+  .widget-modal {
+    padding: 1.8rem 1.35rem 1.6rem;
+    min-width: unset;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .widget-modal-heading h2 {
+    font-size: 1.25rem;
+  }
+
+  .widget-modal-alert {
+    padding: 0.85rem 1rem;
+  }
+
+  .widget-modal-alert .alert-text {
+    font-size: 0.88rem;
   }
 }
 </style>
