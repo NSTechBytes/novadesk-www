@@ -115,7 +115,7 @@ onMounted(async () => {
 <style scoped>
 .page {
   min-height: 100vh;
-  background: #071B30;
+  background: rgb(12, 19, 41);
   display: flex;
   flex-direction: column;
   align-items: center;

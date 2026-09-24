@@ -3,6 +3,6 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: #071B30;
+  background: rgb(12, 19, 41);
   font-family: 'Ubuntu', 'Helvetica Neue', sans-serif;
 }
