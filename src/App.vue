@@ -1,10 +1,76 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import patreonLogo from './assets/patreon.png'
 
 const showContact = ref(false)
 const showMenu = ref(false)
 const version = ref('Loading...')
 const downloadUrl = ref('https://github.com/Official-Novadesk/novadesk/releases/latest')
+
+interface WidgetItem {
+  name: string
+  image: string
+}
+
+const widgets: WidgetItem[] = [
+  {
+    name: 'CleanTime',
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264582/zfjzk4hhfnkjjrpvm8xd.png'
+  },
+  {
+    name: 'AeroWeather',
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264581/p9kznwu99er2eypdqco9.png'
+  },
+  {
+    name: 'FineTime',
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264581/smv6ebiy6hhcjfzrgpgh.png'
+  },
+  {
+    name: 'AClock',
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264581/voovyxrymb8d0p3n2bhb.png'
+  },
+  {
+    name: 'SmartPlayer',
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264579/hz7uexfdpqkbjnqpteyb.jpg'
+  }
+]
+
+const currentSlide = ref(0)
+const currentWidget = computed<WidgetItem>(() => widgets[currentSlide.value] ?? widgets[0] as WidgetItem)
+let slideTimer: ReturnType<typeof setInterval> | null = null
+
+const nextSlide = () => {
+  currentSlide.value = (currentSlide.value + 1) % widgets.length
+}
+
+const prevSlide = () => {
+  currentSlide.value = (currentSlide.value - 1 + widgets.length) % widgets.length
+}
+
+const goToSlide = (idx: number) => {
+  currentSlide.value = idx
+}
+
+const preloadImages = () => {
+  widgets.forEach(widget => {
+    const img = new Image()
+    img.src = widget.image
+  })
+}
+
+const startAutoplay = () => {
+  stopAutoplay()
+  slideTimer = setInterval(() => {
+    nextSlide()
+  }, 4000)
+}
+
+const stopAutoplay = () => {
+  if (slideTimer) {
+    clearInterval(slideTimer)
+    slideTimer = null
+  }
+}
 
 const openContact = () => {
   showContact.value = true
@@ -17,6 +83,8 @@ const toggleMenu = () => {
 }
 
 onMounted(async () => {
+  preloadImages()
+  startAutoplay()
   try {
     const res = await fetch('https://api.github.com/repos/Official-Novadesk/novadesk/releases/latest', {
       headers: { Accept: 'application/vnd.github+json' }
@@ -38,6 +106,10 @@ onMounted(async () => {
     version.value = 'v0.3.0.0 Beta Build'
     downloadUrl.value = 'https://github.com/Official-Novadesk/novadesk/releases/latest'
   }
+})
+
+onUnmounted(() => {
+  stopAutoplay()
 })
 </script>
 
@@ -91,6 +163,86 @@ onMounted(async () => {
           <span class="version">{{ version }}</span>
         </p>
       </div>
+
+      <!-- Preview Widgets Slideshow -->
+      <div
+        class="slideshow-wrapper"
+        @mouseenter="stopAutoplay"
+        @mouseleave="startAutoplay"
+      >
+        <div class="slideshow">
+          <transition name="slide-fade" mode="out-in">
+            <div :key="currentSlide" class="slide">
+              <img
+                :src="currentWidget.image"
+                :alt="currentWidget.name"
+                class="slide-img"
+              />
+            </div>
+          </transition>
+
+          <button
+            class="slide-nav prev"
+            type="button"
+            @click="prevSlide"
+            aria-label="Previous slide"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button
+            class="slide-nav next"
+            type="button"
+            @click="nextSlide"
+            aria-label="Next slide"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+
+          <div class="slide-badge">
+            <span>{{ currentWidget.name }} Widget</span>
+          </div>
+
+          <div class="slide-dots">
+            <button
+              v-for="(w, idx) in widgets"
+              :key="idx"
+              class="dot"
+              :class="{ active: idx === currentSlide }"
+              type="button"
+              :aria-label="`Go to ${w.name} slide`"
+              @click="goToSlide(idx)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Patreon Support Block -->
+      <section class="patreon-card">
+        <div class="patreon-content">
+          <div class="patreon-logo-wrapper">
+            <img :src="patreonLogo" alt="Patreon Logo" class="patreon-logo" />
+          </div>
+          <div class="patreon-text">
+            <h2>Support Us on Patreon</h2>
+            <p>
+              Novadesk is free and open-source. Consider supporting our development to
+              unlock exclusive benefits, early build access, and custom widget perks.
+            </p>
+          </div>
+        </div>
+        <a
+          class="patreon-btn"
+          href="https://www.patreon.com/c/officialnovadesk"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Support on Patreon
+        </a>
+      </section>
     </section>
   </main>
   <footer class="footer">OfficialNovadesk all rights reserved</footer>
@@ -520,6 +672,221 @@ onMounted(async () => {
   border-radius: 999px;
 }
 
+/* Slideshow styles */
+.slideshow-wrapper {
+  width: min(720px, 100%);
+  margin-top: 2rem;
+  position: relative;
+  user-select: none;
+}
+
+.slideshow {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9.6;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(10, 18, 36, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(56, 189, 248, 0.12);
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.slide-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.slide-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(13, 20, 36, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 5;
+  padding: 0;
+}
+
+.slide-nav.prev {
+  left: 16px;
+}
+
+.slide-nav.next {
+  right: 16px;
+}
+
+.slide-nav:hover {
+  background: rgba(56, 189, 248, 0.35);
+  border-color: rgba(56, 189, 248, 0.7);
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}
+
+.slide-badge {
+  position: absolute;
+  bottom: 16px;
+  left: 18px;
+  background: rgba(11, 19, 36, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 0.42rem 1.05rem;
+  color: #f1f5f9;
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  z-index: 4;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.slide-dots {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  z-index: 4;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.dot.active {
+  background: #00C6FF;
+  box-shadow: 0 0 12px rgba(0, 198, 255, 0.85);
+  width: 22px;
+  border-radius: 999px;
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: opacity 0.35s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+}
+
+/* Patreon Support Block */
+.patreon-card {
+  margin-top: 3.5rem;
+  margin-bottom: 1.5rem;
+  width: min(980px, 100%);
+  box-sizing: border-box;
+  border-radius: 22px;
+  background: rgba(12, 22, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(81, 188, 254, 0.45);
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.28), inset 0 0 20px rgba(56, 189, 248, 0.08), 0 15px 40px rgba(0, 0, 0, 0.45);
+  padding: 1.6rem 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  text-align: left;
+}
+
+.patreon-content {
+  display: flex;
+  align-items: center;
+  gap: 1.35rem;
+  flex: 1;
+}
+
+.patreon-logo-wrapper {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.patreon-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(255, 66, 77, 0.25);
+}
+
+.patreon-text h2 {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.patreon-text p {
+  margin: 0;
+  font-size: 0.93rem;
+  color: #9fa2b8;
+  line-height: 1.5;
+  max-width: 620px;
+}
+
+.patreon-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FF6448 0%, #FF424D 100%);
+  color: #ffffff;
+  text-decoration: none;
+  padding: 0.85rem 1.8rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  box-shadow: 0 6px 22px rgba(255, 66, 77, 0.45);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.patreon-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(255, 66, 77, 0.65);
+  filter: brightness(1.06);
+}
+
 @media (max-width: 780px) {
   .nav-inner {
     grid-template-columns: auto 1fr auto;
@@ -567,6 +934,68 @@ onMounted(async () => {
 
   .links.open {
     max-height: 160px;
+  }
+
+  /* Responsive Slideshow */
+  .slideshow-wrapper {
+    margin-top: 1.5rem;
+  }
+
+  .slideshow {
+    border-radius: 16px;
+  }
+
+  .slide-nav {
+    width: 32px;
+    height: 32px;
+  }
+
+  .slide-nav.prev {
+    left: 10px;
+  }
+
+  .slide-nav.next {
+    right: 10px;
+  }
+
+  .slide-badge {
+    bottom: 12px;
+    left: 12px;
+    font-size: 0.78rem;
+    padding: 0.32rem 0.75rem;
+  }
+
+  .slide-dots {
+    bottom: 14px;
+  }
+
+  /* Responsive Patreon Card */
+  .patreon-card {
+    margin-top: 2.5rem;
+    padding: 1.5rem 1.25rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 1.35rem;
+  }
+
+  .patreon-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.85rem;
+  }
+
+  .patreon-logo-wrapper {
+    margin: 0 auto;
+  }
+
+  .patreon-text h2 {
+    font-size: 1.22rem;
+  }
+
+  .patreon-btn {
+    width: 100%;
+    max-width: 280px;
+    align-self: center;
   }
 }
 </style>
