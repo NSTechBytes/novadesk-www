@@ -99,11 +99,29 @@ const stopAutoplay = () => {
   }
 }
 
+const copied = ref(false)
+let copyTimer: ReturnType<typeof setTimeout> | null = null
+
+const copyEmail = async () => {
+  try {
+    await navigator.clipboard.writeText('officialnovadesk@gmail.com')
+    copied.value = true
+    if (copyTimer) clearTimeout(copyTimer)
+    copyTimer = setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  } catch (err) {
+    // fallback
+  }
+}
+
 const openContact = () => {
+  copied.value = false
   showContact.value = true
 }
 const closeContact = () => {
   showContact.value = false
+  copied.value = false
 }
 const toggleMenu = () => {
   showMenu.value = !showMenu.value
@@ -296,18 +314,56 @@ onUnmounted(() => {
   </main>
   <footer class="footer">OfficialNovadesk all rights reserved</footer>
 
+  <!-- Modern Contact Modal -->
   <div v-if="showContact" class="modal-backdrop" @click.self="closeContact">
-    <div class="modal">
+    <div class="modal contact-modal">
       <button class="icon-close" type="button" @click="closeContact" aria-label="Close">
         <img src="./assets/icons/close.png" alt="Close" />
       </button>
-      <div class="modal-heading">
-        <img src="./assets/icons/mail.png" alt="Mail" />
-        <h2>Contact</h2>
+
+      <div class="contact-modal-heading">
+        <div class="contact-modal-icon">
+          <img src="./assets/icons/mail.png" alt="Mail" />
+        </div>
+        <h2>Get in Touch</h2>
       </div>
-      <div class="email-chip">
-        <span>Email:</span>
-        <a href="mailto:officialnovadesk@gmail.com">officialnovadesk@gmail.com</a>
+
+      <div class="contact-modal-alert">
+        <div class="alert-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#73F0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <p class="alert-text">
+          Have questions, feedback, or suggestions? Reach out directly to the <strong>Novadesk</strong> team.
+        </p>
+      </div>
+
+      <div class="email-display-card">
+        <div class="email-address-wrapper">
+          <span class="email-label">Email Address</span>
+          <a class="email-val" href="mailto:officialnovadesk@gmail.com">officialnovadesk@gmail.com</a>
+        </div>
+        <button class="btn-copy" type="button" @click="copyEmail" :aria-label="copied ? 'Email copied' : 'Copy email address'">
+          <svg v-if="!copied" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#73F0FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>{{ copied ? 'Copied!' : 'Copy' }}</span>
+        </button>
+      </div>
+
+      <div class="contact-modal-actions">
+        <a class="btn-proceed" href="mailto:officialnovadesk@gmail.com">
+          <span>Send an Email</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </a>
       </div>
     </div>
   </div>
@@ -640,6 +696,7 @@ onUnmounted(() => {
 
 .modal {
   position: relative;
+  box-sizing: border-box;
   background: #1f1f24;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
@@ -663,47 +720,16 @@ onUnmounted(() => {
   color: #d9d9e0;
 }
 
-.email-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.55rem 0.9rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  margin-top: 0.4rem;
-}
-
-.email-chip a {
-  color: #e7e7ed;
-  text-decoration: none;
-}
-
-.email-chip span {
-  color: #fff;
-}
-
 .modal a {
   color: #7cc3ff;
 }
 
-.modal-heading {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-bottom: 0.05rem;
-  line-height: 1;
-}
-
-.modal-heading img {
-  width: 26px;
-  height: 26px;
-}
-
-/* Widget Modal */
-.widget-modal {
+/* Modern Modals Shared Base */
+.widget-modal,
+.contact-modal {
   max-width: 440px;
   width: 90%;
+  box-sizing: border-box;
   background: #141c2e;
   border: 1px solid rgba(81, 188, 254, 0.38);
   border-radius: 20px;
@@ -714,6 +740,138 @@ onUnmounted(() => {
   align-items: center;
   gap: 1rem;
   text-align: center;
+}
+
+/* Contact Modal */
+.contact-modal-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.contact-modal-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(81, 188, 254, 0.12);
+  border: 1px solid rgba(81, 188, 254, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-modal-icon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(85%) sepia(55%) saturate(600%) hue-rotate(158deg) brightness(1.1);
+}
+
+.contact-modal-heading h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.contact-modal-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(81, 188, 254, 0.28);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  text-align: left;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.contact-modal-alert .alert-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.contact-modal-alert .alert-text {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.contact-modal-alert .alert-text strong {
+  color: #73F0FF;
+  font-weight: 600;
+}
+
+.email-display-card {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(10, 18, 36, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.email-address-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  overflow: hidden;
+}
+
+.email-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #73F0FF;
+  font-weight: 600;
+}
+
+.email-val {
+  color: #f1f5f9;
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  word-break: break-all;
+}
+
+.email-val:hover {
+  color: #73F0FF;
+}
+
+.btn-copy {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  color: #e2e8f0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-copy:hover {
+  background: rgba(81, 188, 254, 0.2);
+  border-color: rgba(81, 188, 254, 0.5);
+  color: #73F0FF;
+}
+
+.contact-modal-actions {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0.2rem;
 }
 
 .widget-modal-heading {
@@ -786,11 +944,14 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.85rem;
   width: 100%;
+  box-sizing: border-box;
   margin-top: 0.4rem;
 }
 
 .btn-proceed {
   width: 100%;
+  box-sizing: border-box;
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1265,24 +1426,36 @@ onUnmounted(() => {
     align-self: center;
   }
 
-  /* Responsive Widget Modal */
-  .widget-modal {
+  /* Responsive Modals */
+  .widget-modal,
+  .contact-modal {
     padding: 1.8rem 1.35rem 1.6rem;
     min-width: unset;
     width: 100%;
     max-width: 360px;
   }
 
-  .widget-modal-heading h2 {
+  .widget-modal-heading h2,
+  .contact-modal-heading h2 {
     font-size: 1.25rem;
   }
 
-  .widget-modal-alert {
+  .widget-modal-alert,
+  .contact-modal-alert {
     padding: 0.85rem 1rem;
   }
 
-  .widget-modal-alert .alert-text {
+  .widget-modal-alert .alert-text,
+  .contact-modal-alert .alert-text {
     font-size: 0.88rem;
+  }
+
+  .email-display-card {
+    padding: 0.65rem 0.85rem;
+  }
+
+  .email-val {
+    font-size: 0.84rem;
   }
 }
 </style>
