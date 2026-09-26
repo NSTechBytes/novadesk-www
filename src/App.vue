@@ -26,7 +26,7 @@ const widgets: WidgetItem[] = [
   },
   {
     name: 'FineTime',
-    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790264581/smv6ebiy6hhcjfzrgpgh.png',
+    image: 'https://res.cloudinary.com/i8b6ikc3/image/upload/v1790302673/gy4sesxtpbzgzxg9npeh.png',
     repoUrl: 'https://github.com/NSTechBytes/FineTime'
   },
   {
