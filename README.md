@@ -4,7 +4,7 @@ Official website for the Novadesk project, built with Vue 3, TypeScript, and Vit
 
 ## Preview
 
-![Novadesk Website](./.github/preview-website.png)
+![Novadesk Website](https://res.cloudinary.com/i8b6ikc3/image/upload/v1790520147/tiaxlczpdqs1qwejua2e.png)
 
 ## Contributing
 
